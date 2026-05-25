@@ -116,6 +116,13 @@
         .success-text {
             color: var(--success);
         }
+
+        .target-highlight {
+            background-color: #fff3cd;
+            padding: 12px 8px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -176,6 +183,16 @@
             <span class="tier-label" style="font-weight: 600;">Risk Multiple Profile</span>
             <span class="tier-values success-text" id="rMultiple">-</span>
         </div>
+        <div class="target-highlight">
+            <div class="tier-row" style="padding: 6px 0;">
+                <span class="tier-label">1R Target</span>
+                <span class="tier-values" id="target1R" style="color: var(--primary);">-</span>
+            </div>
+            <div class="tier-row" style="padding: 6px 0; border-bottom: none;">
+                <span class="tier-label">2R Target</span>
+                <span class="tier-values" id="target2R" style="color: var(--primary);">-</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -191,7 +208,7 @@
 
         // Reset if inputs are blank or invalid
         if (isNaN(shares) || isNaN(buyPrice) || isNaN(maxLoss) || shares <= 0 || buyPrice <= maxLoss) {
-            const placeholders = ['tier1', 'tier2', 'tier3', 'origLossPct', 'origLossVal', 'newLossPct', 'newLossVal', 'rMultiple'];
+            const placeholders = ['tier1', 'tier2', 'tier3', 'origLossPct', 'origLossVal', 'newLossPct', 'newLossVal', 'rMultiple', 'target1R', 'target2R'];
             placeholders.forEach(id => document.getElementById(id).innerText = "-");
             return;
         }
@@ -237,6 +254,15 @@
         document.getElementById('newLossPct').innerText = `${newLossPct.toFixed(2)}%`;
         document.getElementById('newLossVal').innerText = `-$${Math.abs(newLossVal).toFixed(2)}`;
         document.getElementById('rMultiple').innerText = `${rMultiple.toFixed(2)}R`;
+
+        // 3. Calculate 1R and 2R targets
+        const origLossPctDecimal = origLossPct / 100; // Convert percentage to decimal
+        const target1R = buyPrice * (1 + origLossPctDecimal);
+        const target2R = buyPrice * (1 + (2 * origLossPctDecimal));
+
+        // Output Targets
+        document.getElementById('target1R').innerText = `$${formatPrice(target1R)}`;
+        document.getElementById('target2R').innerText = `$${formatPrice(target2R)}`;
     }
 
     // Auto-calculate on any input change
