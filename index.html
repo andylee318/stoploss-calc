@@ -256,9 +256,10 @@
         document.getElementById('rMultiple').innerText = `${rMultiple.toFixed(2)}R`;
 
         // 3. Calculate 1R and 2R targets
-        const origLossPctDecimal = origLossPct / 100; // Convert percentage to decimal
-        const target1R = buyPrice * (1 + origLossPctDecimal);
-        const target2R = buyPrice * (1 + (2 * origLossPctDecimal));
+        // Use absolute value of loss percentage for profit calculation
+        const absLossPctDecimal = Math.abs(origLossPct) / 100; // Convert to decimal and make positive
+        const target1R = buyPrice * (1 + absLossPctDecimal);
+        const target2R = buyPrice * (1 + (2 * absLossPctDecimal));
 
         // Output Targets
         document.getElementById('target1R').innerText = `$${formatPrice(target1R)}`;
