@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiered Stop Loss Calc</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SL Calc">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/007AFF/FFFFFF?text=Calc">
+
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-color: #1d1d1f;
+            --primary: #007aff;
+            --danger: #ff3b30;
+            --success: #34c759;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background: #fafafa;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            background: #fff;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #8e8e93;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .results, .metrics {
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+        }
+
+        .tier-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tier-row:last-child {
+            border-bottom: none;
+        }
+
+        .tier-label {
+            font-weight: 500;
+        }
+
+        .tier-values {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .danger-text {
+            color: var(--danger);
+        }
+
+        .success-text {
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Staged Stop Loss</h2>
+    
+    <div class="input-group">
+        <label for="buyPrice">Buy Price ($)</label>
+        <input type="number" id="buyPrice" placeholder="e.g., 183" step="any" inputmode="decimal">
+    </div>
+
+    <div class="input-group">
+        <label for="shares">Total Units / Shares</label>
+        <input type="number" id="shares" placeholder="e.g., 27" inputmode="numeric">
+    </div>
+
+    <div class="input-group">
+        <label for="maxLoss">Initial Cut Loss Price ($)</label>
+        <input type="number" id="maxLoss" placeholder="e.g., 177" step="any" inputmode="decimal">
+    </div>
+
+    <div class="section-title">Staggered Tiers</div>
+    <div class="results">
+        <div class="tier-row">
+            <span class="tier-label">Stop 1 (Tight)</span>
+            <span class="tier-values" id="tier1">-</span>
+        </div>
+        <div class="tier-row">
+            <span class="tier-label">Stop 2 (Mid)</span>
+            <span class="tier-values" id="tier2">-</span>
+        </div>
+        <div class="tier-row">
+            <span class="tier-label">Stop 3 (Max Cut)</span>
+            <span class="tier-values danger-text" id="tier3">-</span>
+        </div>
+    </div>
+
+    <div class="section-title">Risk Metrics Analysis</div>
+    <div class="metrics">
+        <div class="tier-row">
+            <span class="tier-label">Orig. Cut Loss %</span>
+            <span class="tier-values danger-text" id="origLossPct">-</span>
+        </div>
+        <div class="tier-row">
+            <span class="tier-label">Orig. Total Loss Value</span>
+            <span class="tier-values danger-text" id="origLossVal">-</span>
+        </div>
+        <div class="tier-row">
+            <span class="tier-label">New Tiered Loss %</span>
+            <span class="tier-values danger-text" id="newLossPct">-</span>
+        </div>
+        <div class="tier-row">
+            <span class="tier-label">New Tiered Loss Value</span>
+            <span class="tier-values danger-text" id="newLossVal">-</span>
+        </div>
+        <div class="tier-row" style="background-color: #f9f9f9; padding: 12px 8px; border-radius: 8px;">
+            <span class="tier-label" style="font-weight: 600;">Risk Multiple Profile</span>
+            <span class="tier-values success-text" id="rMultiple">-</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const buyPriceInput = document.getElementById('buyPrice');
+    const sharesInput = document.getElementById('shares');
+    const maxLossInput = document.getElementById('maxLoss');
+
+    function calculateTiers() {
+        const shares = parseFloat(sharesInput.value);
+        const buyPrice = parseFloat(buyPriceInput.value);
+        const maxLoss = parseFloat(maxLossInput.value);
+
+        // Reset if inputs are blank or invalid
+        if (isNaN(shares) || isNaN(buyPrice) || isNaN(maxLoss) || shares <= 0 || buyPrice <= maxLoss) {
+            const placeholders = ['tier1', 'tier2', 'tier3', 'origLossPct', 'origLossVal', 'newLossPct', 'newLossVal', 'rMultiple'];
+            placeholders.forEach(id => document.getElementById(id).innerText = "-");
+            return;
+        }
+
+        // 1. Math for Tiers
+        const totalRiskGap = buyPrice - maxLoss;
+        const step = totalRiskGap / 3;
+
+        const price1 = buyPrice - step;
+        const price2 = buyPrice - (step * 2);
+        const price3 = maxLoss;
+
+        const sharesPerTier = shares / 3;
+        
+        const formatShares = (qty) => Number(qty.toFixed(2));
+        const formatPrice = (p) => Number(p.toFixed(2));
+
+        // Output Tiers
+        document.getElementById('tier1').innerText = `${formatShares(sharesPerTier)} units @ $${formatPrice(price1)}`;
+        document.getElementById('tier2').innerText = `${formatShares(sharesPerTier)} units @ $${formatPrice(price2)}`;
+        document.getElementById('tier3').innerText = `${formatShares(sharesPerTier)} units @ $${formatPrice(price3)}`;
+
+        // 2. Risk Metrics Calculations
+        const totalPositionValue = shares * buyPrice;
+
+        // Original Risk (All shares hitting max loss)
+        const origLossPct = ((maxLoss - buyPrice) / buyPrice) * 100; // Negative value
+        const origLossVal = (maxLoss - buyPrice) * shares;
+
+        // New Risk (Sum of individual tiers losing money)
+        const lossTier1 = (price1 - buyPrice) * sharesPerTier;
+        const lossTier2 = (price2 - buyPrice) * sharesPerTier;
+        const lossTier3 = (price3 - buyPrice) * sharesPerTier;
+        const newLossVal = lossTier1 + lossTier2 + lossTier3;
+        const newLossPct = (newLossVal / totalPositionValue) * 100;
+
+        // R Multiple (New Loss % / Original Loss %)
+        const rMultiple = newLossPct / origLossPct;
+
+        // Output Metrics
+        document.getElementById('origLossPct').innerText = `${origLossPct.toFixed(2)}%`;
+        document.getElementById('origLossVal').innerText = `-$${Math.abs(origLossVal).toFixed(2)}`;
+        document.getElementById('newLossPct').innerText = `${newLossPct.toFixed(2)}%`;
+        document.getElementById('newLossVal').innerText = `-$${Math.abs(newLossVal).toFixed(2)}`;
+        document.getElementById('rMultiple').innerText = `${rMultiple.toFixed(2)}R`;
+    }
+
+    // Auto-calculate on any input change
+    sharesInput.addEventListener('input', calculateTiers);
+    buyPriceInput.addEventListener('input', calculateTiers);
+    maxLossInput.addEventListener('input', calculateTiers);
+</script>
+
+</body>
+</html>
