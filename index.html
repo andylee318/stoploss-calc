@@ -123,6 +123,36 @@
             border-radius: 8px;
             margin-top: 8px;
         }
+
+        .notes-section {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 2px solid #eee;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .notes-section h3 {
+            margin: 0 0 12px 0;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #8e8e93;
+            letter-spacing: 0.5px;
+        }
+
+        .note-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-left: 3px solid var(--primary);
+            border-radius: 4px;
+        }
+
+        .note-item strong {
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -192,6 +222,25 @@
                 <span class="tier-label">2R Target</span>
                 <span class="tier-values" id="target2R" style="color: var(--primary);">-</span>
             </div>
+        </div>
+    </div>
+
+    <div class="notes-section">
+        <h3>Trading Guidelines</h3>
+        
+        <div class="note-item">
+            <strong>&lt;1R (3 orders)</strong><br>
+            Set 3 STOP and 3rd stop with OCO 2R TP RTH /// PB: wake up CL EOD with 1/3 2R TP RTH
+        </div>
+
+        <div class="note-item">
+            <strong>1R - 2R (1 order)</strong><br>
+            Set 1/3 TP at 2R RTH, set OCO sell stop cut loss full position at breakeven (ORCL 10 units & 30 units)
+        </div>
+
+        <div class="note-item">
+            <strong>&gt;2R (1+1 order)</strong><br>
+            Wake up out TP/CL 2/3 below 21ema low band at close, set sell stop cut loss full position at breakeven or 21ema low band, whichever higher. (ORCL 20 units)
         </div>
     </div>
 </div>
