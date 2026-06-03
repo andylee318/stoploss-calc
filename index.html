@@ -270,15 +270,18 @@
         const price2 = buyPrice - (step * 2);
         const price3 = maxLoss;
 
-        const sharesPerTier = shares / 3;
+        // Calculate shares per tier with flooring: floor for tier 1 & 2, remainder for tier 3
+        const sharesPerTierBase = shares / 3;
+        const shares1 = Math.floor(sharesPerTierBase);
+        const shares2 = Math.floor(sharesPerTierBase);
+        const shares3 = shares - shares1 - shares2;
         
-        const formatShares = (qty) => Number(qty.toFixed(2));
         const formatPrice = (p) => Number(p.toFixed(2));
 
         // Output Tiers
-        document.getElementById('tier1').innerText = `${formatShares(sharesPerTier)} units @ $${formatPrice(price1)}`;
-        document.getElementById('tier2').innerText = `${formatShares(sharesPerTier)} units @ $${formatPrice(price2)}`;
-        document.getElementById('tier3').innerText = `${formatShares(sharesPerTier)} units @ $${formatPrice(price3)}`;
+        document.getElementById('tier1').innerText = `${shares1} units @ $${formatPrice(price1)}`;
+        document.getElementById('tier2').innerText = `${shares2} units @ $${formatPrice(price2)}`;
+        document.getElementById('tier3').innerText = `${shares3} units @ $${formatPrice(price3)}`;
 
         // 2. Risk Metrics Calculations
         const totalPositionValue = shares * buyPrice;
@@ -288,9 +291,9 @@
         const origLossVal = (maxLoss - buyPrice) * shares;
 
         // New Risk (Sum of individual tiers losing money)
-        const lossTier1 = (price1 - buyPrice) * sharesPerTier;
-        const lossTier2 = (price2 - buyPrice) * sharesPerTier;
-        const lossTier3 = (price3 - buyPrice) * sharesPerTier;
+        const lossTier1 = (price1 - buyPrice) * shares1;
+        const lossTier2 = (price2 - buyPrice) * shares2;
+        const lossTier3 = (price3 - buyPrice) * shares3;
         const newLossVal = lossTier1 + lossTier2 + lossTier3;
         const newLossPct = (newLossVal / totalPositionValue) * 100;
 
