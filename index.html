@@ -302,10 +302,10 @@
 
         // Output Metrics
         document.getElementById('origLossPct').innerText = `${origLossPct.toFixed(2)}%`;
-        document.getElementById('origLossVal').innerText = `-$${Math.abs(origLossVal).toFixed(2)}`;
-        document.getElementById('newLossPct').innerText = `${newLossPct.toFixed(2)}%`;
-        document.getElementById('newLossVal').innerText = `-$${Math.abs(newLossVal).toFixed(2)}`;
-        document.getElementById('rMultiple').innerText = `${rMultiple.toFixed(2)}R`;
+        document.getElementById('origLossVal').innerText = `-$${Math.abs(origLossVal).toFixed(02)}`;
+        document.getElementById('newLossPct').innerText = `${newLossPct.toFixed(02)}%`;
+        document.getElementById('newLossVal').innerText = `-$${Math.abs(newLossVal).toFixed(02)}`;
+        document.getElementById('rMultiple').innerText = `${rMultiple.toFixed(02)}R`;
 
         // 3. Calculate 1R and 2R targets
         // Use absolute value of loss percentage for profit calculation
