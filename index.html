@@ -154,12 +154,16 @@
             color: var(--primary);
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <h2>Staged Stop Loss</h2>
+    <h2 style="position: relative;">Staged Stop Loss
+        <button id="copyBtn" type="button" onclick="copySnapshot()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); padding: 6px 10px; font-size: 12px; font-weight: 600; border: none; border-radius: 8px; background: var(--primary); color: #fff; cursor: pointer;">Copy</button>
+    </h2>
     
+    <div id="captureArea">
     <div class="input-group">
         <label for="buyPrice">Buy Price ($)</label>
         <input type="number" id="buyPrice" placeholder="e.g., 183" step="any" inputmode="decimal">
@@ -199,6 +203,7 @@
                 <span class="tier-values" id="target2R" style="color: var(--primary);">-</span>
             </div>
         </div>
+    </div>
     </div>
 
     <div class="section-title">Risk Metrics Analysis</div>
@@ -323,6 +328,20 @@
     sharesInput.addEventListener('input', calculateTiers);
     buyPriceInput.addEventListener('input', calculateTiers);
     maxLossInput.addEventListener('input', calculateTiers);
+
+    // Copy screenshot (Buy Price -> 2R Target) to clipboard
+    function copySnapshot() {
+        const btn = document.getElementById('copyBtn');
+        const blobPromise = html2canvas(document.getElementById('captureArea'), {
+            backgroundColor: '#ffffff',
+            scale: window.devicePixelRatio || 2
+        }).then(canvas => new Promise(resolve => canvas.toBlob(resolve, 'image/png')));
+
+        navigator.clipboard.write([new ClipboardItem({ 'image/png': blobPromise })])
+            .then(() => { btn.innerText = 'Copied ✓'; })
+            .catch(err => { console.error(err); btn.innerText = 'Failed'; })
+            .finally(() => setTimeout(() => { btn.innerText = 'Copy'; }, 1500));
+    }
 </script>
 
 </body>
