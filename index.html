@@ -287,9 +287,9 @@
         const formatPrice = (p) => Number(p.toFixed(2));
 
         // Output Tiers
-        document.getElementById('tier1').innerText = `${shares1} units @ $${formatPrice(price1)}`;
-        document.getElementById('tier2').innerText = `${shares2} units @ $${formatPrice(price2)}`;
-        document.getElementById('tier3').innerText = `${shares3} units @ $${formatPrice(price3)}`;
+        document.getElementById('tier1').innerText = `${shares1} STOP @ $${formatPrice(price1)}`;
+        document.getElementById('tier2').innerText = `${shares2} STOP @ $${formatPrice(price2)}`;
+        document.getElementById('tier3').innerText = `${shares3} STOP @ $${formatPrice(price3)}`;
 
         // 2. Risk Metrics Calculations
         const totalPositionValue = shares * buyPrice;
